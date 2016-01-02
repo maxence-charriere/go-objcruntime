@@ -11,38 +11,38 @@ import "unsafe"
 
 type Class C.Class
 
-func Class_GetName(cls Class) string {
+func Class_getName(cls Class) string {
 	cname := C.class_getName(cls)
 	return C.GoString(cname)
 }
 
-func Class_GetSuperclass(cls Class) Class {
+func Class_getSuperclass(cls Class) Class {
 	return Class(C.class_getSuperclass(cls))
 }
 
-func Class_IsMetaClass(cls Class) bool {
+func Class_isMetaClass(cls Class) bool {
 	return C.class_isMetaClass(cls) == 1
 }
 
-func Class_GetInstanceSize(cls Class) uint {
+func Class_getInstanceSize(cls Class) uint {
 	return uint(C.class_getInstanceSize(cls))
 }
 
-func Class_GetInstanceVariable(cls Class, name string) Ivar {
+func Class_getInstanceVariable(cls Class, name string) Ivar {
 	cname := C.CString(name)
 	defer C.free(unsafe.Pointer(cname))
 
 	return Ivar(C.class_getInstanceVariable(cls, cname))
 }
 
-func Class_GetClassVariable(cls Class, name string) Ivar {
+func Class_getClassVariable(cls Class, name string) Ivar {
 	cname := C.CString(string(name))
 	defer C.free(unsafe.Pointer(cname))
 
 	return Ivar(C.class_getClassVariable(cls, cname))
 }
 
-func Class_AddIvar(cls Class, name string, size uint, alignment uint8, types string) bool {
+func Class_addIvar(cls Class, name string, size uint, alignment uint8, types string) bool {
 	cname := C.CString(string(name))
 	defer C.free(unsafe.Pointer(cname))
 
@@ -52,13 +52,13 @@ func Class_AddIvar(cls Class, name string, size uint, alignment uint8, types str
 	return C.class_addIvar(cls, cname, C.size_t(size), C.uint8_t(alignment), ctypes) == 1
 }
 
-func Class_CopyIvarList(cls Class) (ivarList []Ivar, outCount uint) {
+func Class_copyIvarList(cls Class) (ivarList []Ivar) {
 	var coutCount C.uint
 
 	ivarListPtr := C.class_copyIvarList(cls, &coutCount)
 	defer C.free(unsafe.Pointer(ivarListPtr))
 
-	if outCount = uint(coutCount); outCount > 0 {
+	if outCount := uint(coutCount); outCount > 0 {
 		ivarList = make([]Ivar, outCount)
 
 		for i := uint(0); i != outCount; i++ {
