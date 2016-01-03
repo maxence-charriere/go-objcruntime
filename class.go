@@ -29,7 +29,7 @@ func Class_getSuperclass(cls Class) Class {
 }
 
 func Class_isMetaClass(cls Class) bool {
-	return C.class_isMetaClass(cls) == 1
+	return C.class_isMetaClass(cls) != 0
 }
 
 func Class_getInstanceSize(cls Class) uint {
@@ -57,7 +57,7 @@ func Class_addIvar(cls Class, name string, size uint, alignment uint8, types str
 	ctypes := C.CString(types)
 	defer C.free(unsafe.Pointer(ctypes))
 
-	return C.class_addIvar(cls, cname, C.size_t(size), C.uint8_t(alignment), ctypes) == 1
+	return C.class_addIvar(cls, cname, C.size_t(size), C.uint8_t(alignment), ctypes) != 0
 }
 
 func Class_copyIvarList(cls Class) (ivarList []Ivar) {
@@ -78,16 +78,12 @@ func Class_copyIvarList(cls Class) (ivarList []Ivar) {
 	return
 }
 
-func Class_getIvarLayout(cls Class) string {
-	clayout := unsafe.Pointer(C.class_getIvarLayout(cls))
-	return C.GoString((*C.char)(clayout))
+func Class_getIvarLayout(cls Class) uintptr {
+	return uintptr(unsafe.Pointer(C.class_getIvarLayout(cls)))
 }
 
-func Class_setIvarLayout(cls Class, layout string) {
-	clayout := unsafe.Pointer(C.CString(layout))
-	defer C.free(clayout)
-
-	C.class_setIvarLayout(cls, (*C.uint8_t)(clayout))
+func Class_setIvarLayout(cls Class, layout uintptr) {
+	C.class_setIvarLayout(cls, (*C.uint8_t)(unsafe.Pointer(layout)))
 }
 
 func Class_getWeakIvarLayout(cls Class) string {
