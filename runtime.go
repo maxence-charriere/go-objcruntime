@@ -2,10 +2,6 @@ package objc
 
 // #include <stdlib.h>
 // #include <objc/runtime.h>
-//
-// static Method *method_offset(Method *p, size_t n) {
-//   return p + n;
-// }
 import "C"
 import "unsafe"
 
@@ -22,6 +18,8 @@ type Sel C.SEL
 type Id C.id
 
 type Imp C.IMP
+
+type Protocol *C.Protocol
 
 func Class_getName(cls Class) string {
 	cname := C.class_getName(cls)
@@ -136,7 +134,7 @@ func Class_getInstanceMethod(aClass Class, aSelector Sel) Method {
 	return Method(C.class_getInstanceMethod(aClass, aSelector))
 }
 
-func Class_getClassMethodt(aClass Class, aSelector Sel) Method {
+func Class_getClassMethod(aClass Class, aSelector Sel) Method {
 	return Method(C.class_getClassMethod(aClass, aSelector))
 }
 
@@ -164,6 +162,23 @@ func Class_replaceMethod(cls Class, name Sel, imp Imp, types string) Imp {
 	defer C.free(unsafe.Pointer(ctype))
 
 	return Imp(C.class_replaceMethod(cls, name, imp, ctype))
+}
+
+func Class_getMethodImplementation(cls Class, name Sel) Imp {
+	return Imp(C.class_getMethodImplementation(cls, name))
+}
+
+func Class_getMethodImplementation_stret(cls Class, name Sel) Imp {
+	return Imp(C.class_getMethodImplementation_stret(cls, name))
+}
+
+func Class_respondsToSelector(cls Class, sel Sel) bool {
+	return C.class_respondsToSelector(cls, sel) != 0
+}
+
+// TO RE CHECK
+func Class_addProtocol(cls Class, protocol Protocol) bool {
+	return C.class_addProtocol(cls, protocol) != 0
 }
 
 // SEL
