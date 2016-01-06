@@ -11,10 +11,6 @@ type Method C.Method
 
 type Ivar C.Ivar
 
-type Property C.objc_property_t
-
-type Sel C.SEL
-
 type Id C.id
 
 type Imp C.IMP
@@ -176,32 +172,33 @@ func Class_respondsToSelector(cls Class, sel Sel) bool {
 	return C.class_respondsToSelector(cls, sel) != 0
 }
 
-// TO RE CHECK
 func Class_addProtocol(cls Class, protocol Protocol) bool {
 	return C.class_addProtocol(cls, protocol) != 0
 }
 
-// SEL
-func Sel_getName(aSelector Sel) string {
-	return C.GoString(C.sel_getName(aSelector))
-}
+func Class_addProperty(cls Class, name string, attributes []PropertyAttribute) bool {
+	var attrPtr *C.objc_property_attribute_t
 
-func Sel_registerName(str string) Sel {
-	cstr := C.CString(str)
-	defer C.free(unsafe.Pointer(cstr))
+	attrSize := unsafe.Sizeof(*attrPtr)
+	attributesLen := len(attributes)
 
-	return Sel(C.sel_registerName(cstr))
-}
+	cattributes := (*C.objc_property_attribute_t)(C.malloc(C.size_t(attrSize) * C.size_t(attributesLen)))
+	defer C.free(unsafe.Pointer(cattributes))
 
-func Sel_getUid(str string) Sel {
-	cstr := C.CString(str)
-	defer C.free(unsafe.Pointer(cstr))
+	elem := cattributes
 
-	return Sel(C.sel_getUid(cstr))
-}
+	for i := 0; i < attributesLen; i++ {
+		attr := attributes[i]
+		elem.name = C.CString(attr.Name)
+		elem.value = C.CString(attr.Value)
 
-func Sel_isEqual(lhs Sel, rhs Sel) bool {
-	return C.sel_isEqual(lhs, rhs) != 0
+		defer C.free(unsafe.Pointer(elem.name))
+		defer C.free(unsafe.Pointer(elem.value))
+
+		elem = nextPropertyAttr(elem)
+	}
+
+	return false
 }
 
 // Helpers
