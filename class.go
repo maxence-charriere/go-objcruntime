@@ -15,8 +15,6 @@ type Id C.id
 
 type Imp C.IMP
 
-type Protocol *C.Protocol
-
 func Class_getName(cls Class) string {
 	cname := C.class_getName(cls)
 	return C.GoString(cname)
@@ -103,12 +101,12 @@ func Class_getProperty(cls Class, name string) Property {
 func Class_copyPropertyList(cls Class) (properties []Property) {
 	var coutCount C.uint
 
-	list := C.class_copyPropertyList(cls, &coutCount)
-	defer C.free(unsafe.Pointer(list))
+	propertyList := C.class_copyPropertyList(cls, &coutCount)
+	defer C.free(unsafe.Pointer(propertyList))
 
 	if outCount := uint(coutCount); outCount > 0 {
 		properties := make([]Property, outCount)
-		elem := list
+		elem := propertyList
 
 		for i := uint(0); i < outCount; i++ {
 			properties[i] = Property(*elem)
@@ -137,12 +135,12 @@ func Class_getClassMethod(aClass Class, aSelector Sel) Method {
 func Class_copyMethodList(cls Class) (methods []Method) {
 	var coutCount C.uint
 
-	list := C.class_copyMethodList(cls, &coutCount)
-	defer C.free(unsafe.Pointer(list))
+	methodList := C.class_copyMethodList(cls, &coutCount)
+	defer C.free(unsafe.Pointer(methodList))
 
 	if outCount := uint(coutCount); outCount > 0 {
 		methods := make([]Method, outCount)
-		elem := list
+		elem := methodList
 
 		for i := uint(0); i < outCount; i++ {
 			methods[i] = Method(*elem)
@@ -179,6 +177,9 @@ func Class_addProtocol(cls Class, protocol Protocol) bool {
 func Class_addProperty(cls Class, name string, attributes []PropertyAttribute) bool {
 	var attrPtr *C.objc_property_attribute_t
 
+	cname := C.CString(name)
+	defer C.free(unsafe.Pointer(cname))
+
 	attrSize := unsafe.Sizeof(*attrPtr)
 	attributesLen := len(attributes)
 
@@ -198,7 +199,66 @@ func Class_addProperty(cls Class, name string, attributes []PropertyAttribute) b
 		elem = nextPropertyAttr(elem)
 	}
 
-	return false
+	return C.class_addProperty(cls, cname, cattributes, C.uint(attributesLen)) != 0
+}
+
+func Class_replaceProperty(cls Class, name string, attributes []PropertyAttribute) {
+	var attrPtr *C.objc_property_attribute_t
+
+	cname := C.CString(name)
+	defer C.free(unsafe.Pointer(cname))
+
+	attrSize := unsafe.Sizeof(*attrPtr)
+	attributesLen := len(attributes)
+
+	cattributes := (*C.objc_property_attribute_t)(C.malloc(C.size_t(attrSize) * C.size_t(attributesLen)))
+	defer C.free(unsafe.Pointer(cattributes))
+
+	elem := cattributes
+
+	for i := 0; i < attributesLen; i++ {
+		attr := attributes[i]
+		elem.name = C.CString(attr.Name)
+		elem.value = C.CString(attr.Value)
+
+		defer C.free(unsafe.Pointer(elem.name))
+		defer C.free(unsafe.Pointer(elem.value))
+
+		elem = nextPropertyAttr(elem)
+	}
+
+	C.class_replaceProperty(cls, cname, cattributes, C.uint(attributesLen))
+}
+
+func Class_conformsToProtocol(cls Class, protocol Protocol) bool {
+	return C.class_conformsToProtocol(cls, protocol) != 0
+}
+
+func Class_copyProtocolList(cls Class) (protocols []Protocol) {
+	var coutCount C.uint
+
+	protocolList := C.class_copyProtocolList(cls, &coutCount)
+	C.free(unsafe.Pointer(protocolList))
+
+	if outCount := uint(coutCount); outCount > 0 {
+		protocols = make([]Protocol, outCount)
+		elem := protocolList
+
+		for i := uint(0); i < outCount; i++ {
+			protocols[i] = Protocol(*elem)
+			elem = nextProtocol(elem)
+		}
+	}
+
+	return
+}
+
+func Class_getVersion(theClass Class) int {
+	return int(C.class_getVersion(theClass))
+}
+
+func Class_setVersion(theClass Class, version int) {
+	C.class_setVersion(theClass, C.int(version))
 }
 
 // Helpers
