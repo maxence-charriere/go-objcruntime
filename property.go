@@ -12,13 +12,6 @@ type PropertyAttribute struct {
 	Value string
 }
 
-func (attr PropertyAttribute) ctype() C.objc_property_attribute_t {
-	return C.objc_property_attribute_t{
-		name:  C.CString(attr.Name),
-		value: C.CString(attr.Value),
-	}
-}
-
 func makePropertyAttribute(attr C.objc_property_attribute_t) PropertyAttribute {
 	return PropertyAttribute{
 		Name:  C.GoString(attr.name),

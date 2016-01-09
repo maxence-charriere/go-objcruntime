@@ -12,13 +12,6 @@ type MethodDescription struct {
 	Types string
 }
 
-func (description MethodDescription) ctype() C.struct_objc_method_description {
-	return C.struct_objc_method_description{
-		name:  C.SEL(description.Name),
-		types: C.CString(description.Types),
-	}
-}
-
 func makeMethodDescription(description C.struct_objc_method_description) MethodDescription {
 	return MethodDescription{
 		Name:  Sel(description.name),
