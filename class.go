@@ -7,8 +7,6 @@ import "unsafe"
 
 type Class C.Class
 
-type Method C.Method
-
 type Ivar C.Ivar
 
 type Id C.id
@@ -181,14 +179,14 @@ func Class_addProperty(cls Class, name string, attributes []PropertyAttribute) b
 	defer C.free(unsafe.Pointer(cname))
 
 	attrSize := unsafe.Sizeof(*attrPtr)
-	attributesLen := len(attributes)
+	attributeCount := len(attributes)
 
-	cattributes := (*C.objc_property_attribute_t)(C.malloc(C.size_t(attrSize) * C.size_t(attributesLen)))
+	cattributes := (*C.objc_property_attribute_t)(C.malloc(C.size_t(attrSize) * C.size_t(attributeCount)))
 	defer C.free(unsafe.Pointer(cattributes))
 
 	elem := cattributes
 
-	for i := 0; i < attributesLen; i++ {
+	for i := 0; i < attributeCount; i++ {
 		attr := attributes[i]
 		elem.name = C.CString(attr.Name)
 		elem.value = C.CString(attr.Value)
@@ -199,7 +197,7 @@ func Class_addProperty(cls Class, name string, attributes []PropertyAttribute) b
 		elem = nextPropertyAttr(elem)
 	}
 
-	return C.class_addProperty(cls, cname, cattributes, C.uint(attributesLen)) != 0
+	return C.class_addProperty(cls, cname, cattributes, C.uint(attributeCount)) != 0
 }
 
 func Class_replaceProperty(cls Class, name string, attributes []PropertyAttribute) {
@@ -209,14 +207,14 @@ func Class_replaceProperty(cls Class, name string, attributes []PropertyAttribut
 	defer C.free(unsafe.Pointer(cname))
 
 	attrSize := unsafe.Sizeof(*attrPtr)
-	attributesLen := len(attributes)
+	attributeCount := len(attributes)
 
-	cattributes := (*C.objc_property_attribute_t)(C.malloc(C.size_t(attrSize) * C.size_t(attributesLen)))
+	cattributes := (*C.objc_property_attribute_t)(C.malloc(C.size_t(attrSize) * C.size_t(attributeCount)))
 	defer C.free(unsafe.Pointer(cattributes))
 
 	elem := cattributes
 
-	for i := 0; i < attributesLen; i++ {
+	for i := 0; i < attributeCount; i++ {
 		attr := attributes[i]
 		elem.name = C.CString(attr.Name)
 		elem.value = C.CString(attr.Value)
@@ -227,7 +225,7 @@ func Class_replaceProperty(cls Class, name string, attributes []PropertyAttribut
 		elem = nextPropertyAttr(elem)
 	}
 
-	C.class_replaceProperty(cls, cname, cattributes, C.uint(attributesLen))
+	C.class_replaceProperty(cls, cname, cattributes, C.uint(attributeCount))
 }
 
 func Class_conformsToProtocol(cls Class, protocol Protocol) bool {
@@ -265,14 +263,4 @@ func Class_setVersion(theClass Class, version int) {
 func nextIvar(list *C.Ivar) *C.Ivar {
 	ptr := uintptr(unsafe.Pointer(list)) + unsafe.Sizeof(*list)
 	return (*C.Ivar)(unsafe.Pointer(ptr))
-}
-
-func nextProperty(list *C.objc_property_t) *C.objc_property_t {
-	ptr := uintptr(unsafe.Pointer(list)) + unsafe.Sizeof(*list)
-	return (*C.objc_property_t)(unsafe.Pointer(ptr))
-}
-
-func nextMethod(list *C.Method) *C.Method {
-	ptr := uintptr(unsafe.Pointer(list)) + unsafe.Sizeof(*list)
-	return (*C.Method)(unsafe.Pointer(ptr))
 }

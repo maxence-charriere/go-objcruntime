@@ -69,6 +69,11 @@ func Property_copyAttributeList(property Property) (attributes []PropertyAttribu
 	return
 }
 
+func nextProperty(list *C.objc_property_t) *C.objc_property_t {
+	ptr := uintptr(unsafe.Pointer(list)) + unsafe.Sizeof(*list)
+	return (*C.objc_property_t)(unsafe.Pointer(ptr))
+}
+
 func nextPropertyAttr(list *C.objc_property_attribute_t) *C.objc_property_attribute_t {
 	ptr := uintptr(unsafe.Pointer(list)) + unsafe.Sizeof(*list)
 	return (*C.objc_property_attribute_t)(unsafe.Pointer(ptr))
