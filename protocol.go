@@ -56,28 +56,38 @@ func Protocol_addProtocol(proto Protocol, addition Protocol) {
 }
 
 func Protocol_addProperty(proto Protocol, name string, attributes []PropertyAttribute, isRequiredProperty bool, isInstanceProperty bool) {
-	var attrPtr *C.objc_property_attribute_t
+	var cattributes *C.objc_property_attribute_t
 
 	cname := C.CString(name)
 	defer C.free(unsafe.Pointer(cname))
 
-	attrSize := unsafe.Sizeof(*attrPtr)
+	attrSize := unsafe.Sizeof(*cattributes)
 	attributeCount := len(attributes)
 
-	cattributes := (*C.objc_property_attribute_t)(C.malloc(C.size_t(attrSize) * C.size_t(attributeCount)))
-	defer C.free(unsafe.Pointer(cattributes))
+	if len(attributes) != 0 {
+		cattributes = (*C.objc_property_attribute_t)(C.calloc(C.size_t(attributeCount), C.size_t(attrSize)))
 
-	elem := cattributes
+		defer func(cattributes *C.objc_property_attribute_t, attributeCount int) {
+			elem := cattributes
 
-	for i := 0; i < attributeCount; i++ {
-		attr := attributes[i]
-		elem.name = C.CString(attr.Name)
-		elem.value = C.CString(attr.Value)
+			for i := 0; i < attributeCount; i++ {
+				C.free(unsafe.Pointer(elem.name))
+				C.free(unsafe.Pointer(elem.value))
 
-		defer C.free(unsafe.Pointer(elem.name))
-		defer C.free(unsafe.Pointer(elem.value))
+				elem = nextPropertyAttr(elem)
+			}
 
-		elem = nextPropertyAttr(elem)
+			C.free(unsafe.Pointer(cattributes))
+		}(cattributes, attributeCount)
+
+		elem := cattributes
+
+		for i := 0; i < attributeCount; i++ {
+			attr := attributes[i]
+			elem.name = C.CString(attr.Name)
+			elem.value = C.CString(attr.Value)
+			elem = nextPropertyAttr(elem)
+		}
 	}
 
 	C.protocol_addProperty(proto, cname, cattributes, C.uint(attributeCount), cBool(isRequiredProperty), cBool(isInstanceProperty))
@@ -103,9 +113,6 @@ func Protocol_copyMethodDescriptionList(p Protocol, isRequiredMethod bool, isIns
 
 		for i := uint(0); i < outCount; i++ {
 			descriptions[i] = makeMethodDescription(*elem)
-
-			defer C.free(unsafe.Pointer(elem.types))
-
 			elem = nextMethodDescription(elem)
 		}
 	}
