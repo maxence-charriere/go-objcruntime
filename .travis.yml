@@ -6,7 +6,7 @@ before_install:
   - export GOROOT=/Users/travis/go
   - export GOPATH=/Users/travis
   - export OLD_DIR=$PWD
-  - export NEW_DIR=/Users/travis/src/github.com/maxence-charriere/go-objcruntime
+  - export NEW_DIR=/Users/travis/src/github.com/maxence-charriere
   - export PATH=$GOROOT/bin:$PATH
 
   - mkdir -p $NEW_DIR
