@@ -24,9 +24,9 @@ install:
   - go build github.com/mattn/goveralls
   - mv goveralls $GOROOT/bin
 
-# script:
-#   - go test -covermode count -coverprofile cover.out
-#   - goveralls -service travis-ci -repotoken $COVERALLS_TOKEN -coverprofile cover.out
+script:
+  - go test -covermode count -coverprofile cover.out
+  - goveralls -service travis-ci -repotoken $COVERALLS_TOKEN -coverprofile cover.out
 
 notifications:
   email: false
