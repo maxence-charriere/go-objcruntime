@@ -1,0 +1,32 @@
+---
+language: objective-c
+osx_image: xcode7.2
+
+before_install:
+  - export GOROOT=/Users/travis/go
+  - export GOPATH=/Users/travis
+  - export OLD_DIR=$PWD
+  - export NEW_DIR=/Users/travis/src/github.com/maxence-charriere
+  - export PATH=$GOROOT/bin:$PATH
+
+  - mkdir -p $NEW_DIR
+  - curl -o /tmp/go.tar.gz https://storage.googleapis.com/golang/go1.5.2.darwin-amd64.tar.gz
+  - (cd `dirname $GOROOT` && tar -xzf /tmp/go.tar.gz)
+  - cd $NEW_DIR
+  - mv $OLD_DIR go-objcruntime
+  - cd go-objcruntime
+
+  - go version
+
+install:
+  - go get -v -t .
+  - go get -v github.com/mattn/goveralls
+  - go build github.com/mattn/goveralls
+  - mv goveralls $GOROOT/bin
+
+script:
+  - go test -covermode count -coverprofile cover.out
+  - goveralls -service travis-ci -repotoken $COVERALLS_TOKEN -coverprofile cover.out
+
+notifications:
+  email: false
