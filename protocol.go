@@ -7,43 +7,6 @@ import "unsafe"
 
 type Protocol *C.Protocol
 
-func Objc_getProtocol(name string) Protocol {
-	cname := C.CString(name)
-	defer C.free(unsafe.Pointer(cname))
-
-	return Protocol(C.objc_getProtocol(cname))
-}
-
-func Objc_copyProtocolList() (protocols []Protocol) {
-	var coutCount C.uint
-
-	protocolList := C.objc_copyProtocolList(&coutCount)
-	defer C.free(unsafe.Pointer(protocolList))
-
-	if outCount := uint(coutCount); outCount > 0 {
-		protocols = make([]Protocol, outCount)
-		elem := protocolList
-
-		for i := uint(0); i < outCount; i++ {
-			protocols[i] = *elem
-			elem = nextProtocol(elem)
-		}
-	}
-
-	return
-}
-
-func Objc_allocateProtocol(name string) Protocol {
-	cname := C.CString(name)
-	defer C.free(unsafe.Pointer(cname))
-
-	return Protocol(C.objc_allocateProtocol(cname))
-}
-
-func Objc_registerProtocol(protocol Protocol) {
-	C.objc_registerProtocol(protocol)
-}
-
 func Protocol_addMethodDescription(proto Protocol, name Sel, types string, isRequiredMethod bool, isInstanceMethod bool) {
 	ctypes := C.CString(types)
 	defer C.free(unsafe.Pointer(ctypes))

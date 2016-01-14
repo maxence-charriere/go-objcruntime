@@ -26,7 +26,7 @@ func makePropertyAttribute(attr C.objc_property_attribute_t) PropertyAttribute {
 	}
 }
 
-func Propety_getName(property Property) string {
+func Property_getName(property Property) string {
 	cname := C.property_getName(property)
 	return C.GoString(cname)
 }

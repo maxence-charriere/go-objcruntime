@@ -7,8 +7,6 @@ import "unsafe"
 
 type Class C.Class
 
-type Ivar C.Ivar
-
 type Id C.id
 
 type Imp C.IMP
@@ -73,22 +71,6 @@ func Class_copyIvarList(cls Class) (ivarList []Ivar) {
 	return
 }
 
-func Class_getIvarLayout(cls Class) uintptr {
-	return uintptr(unsafe.Pointer(C.class_getIvarLayout(cls)))
-}
-
-func Class_setIvarLayout(cls Class, layout uintptr) {
-	C.class_setIvarLayout(cls, (*C.uint8_t)(unsafe.Pointer(layout)))
-}
-
-func Class_getWeakIvarLayout(cls Class) uintptr {
-	return uintptr(unsafe.Pointer(C.class_getWeakIvarLayout(cls)))
-}
-
-func Class_setWeakIvarLayout(cls Class, layout uintptr) {
-	C.class_setWeakIvarLayout(cls, (*C.uint8_t)(unsafe.Pointer(layout)))
-}
-
 func Class_getProperty(cls Class, name string) Property {
 	cname := C.CString(name)
 	defer C.free(unsafe.Pointer(cname))
@@ -103,7 +85,7 @@ func Class_copyPropertyList(cls Class) (properties []Property) {
 	defer C.free(unsafe.Pointer(propertyList))
 
 	if outCount := uint(coutCount); outCount > 0 {
-		properties := make([]Property, outCount)
+		properties = make([]Property, outCount)
 		elem := propertyList
 
 		for i := uint(0); i < outCount; i++ {
@@ -137,7 +119,7 @@ func Class_copyMethodList(cls Class) (methods []Method) {
 	defer C.free(unsafe.Pointer(methodList))
 
 	if outCount := uint(coutCount); outCount > 0 {
-		methods := make([]Method, outCount)
+		methods = make([]Method, outCount)
 		elem := methodList
 
 		for i := uint(0); i < outCount; i++ {
@@ -279,8 +261,7 @@ func Class_setVersion(theClass Class, version int) {
 	C.class_setVersion(theClass, C.int(version))
 }
 
-// Helpers
-func nextIvar(list *C.Ivar) *C.Ivar {
+func nextClass(list *C.Class) *C.Class {
 	ptr := uintptr(unsafe.Pointer(list)) + unsafe.Sizeof(*list)
-	return (*C.Ivar)(unsafe.Pointer(ptr))
+	return (*C.Class)(unsafe.Pointer(ptr))
 }

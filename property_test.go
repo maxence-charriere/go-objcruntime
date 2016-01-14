@@ -28,7 +28,7 @@ func TestPropertyGetName(t *testing.T) {
 	Objc_registerProtocol(proto)
 	property := Protocol_getProperty(proto, propertyName, true, true)
 
-	if name := Propety_getName(property); name != propertyName {
+	if name := Property_getName(property); name != propertyName {
 		t.Errorf("property name should be %s: %s", propertyName, name)
 	}
 }
@@ -105,7 +105,7 @@ func TestPropertyCopyAttributeEmptyValue(t *testing.T) {
 	}
 }
 
-func TestPropertyCopyNonExistentAttributeValue(t *testing.T) {
+func TestPropertyCopyNonexistentAttributeValue(t *testing.T) {
 	proto := Objc_allocateProtocol("PropertyCopyNonExistAttrValProto")
 	propertyName := "CharDefault"
 

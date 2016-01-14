@@ -2,61 +2,6 @@ package objc
 
 import "testing"
 
-func TestGetProtocol(t *testing.T) {
-	if p := Objc_getProtocol("NSObject"); p == nil {
-		t.Error("protocol should not be nil")
-	}
-}
-
-func TestGetNonExistentProtocol(t *testing.T) {
-	if p := Objc_getProtocol("MyCustomProtocol"); p != nil {
-		t.Errorf("protocol should be nil:%#v", p)
-	}
-}
-
-func TestCopyProtocolList(t *testing.T) {
-	if protocols := Objc_copyProtocolList(); len(protocols) == 0 {
-		t.Error("protocol list should not be empty")
-	}
-}
-
-func TestAllocateProtocol(t *testing.T) {
-	if p := Objc_allocateProtocol("AllocatedProtocol"); p == nil {
-		t.Error("allocated protocol should not be nil")
-	}
-}
-
-func TestAllocateExistentProtocol(t *testing.T) {
-	if p := Objc_allocateProtocol("NSObject"); p != nil {
-		t.Errorf("allocated protocol should be nil: %#v", p)
-	}
-}
-
-func TestRegisterProtocol(t *testing.T) {
-	proto := Objc_allocateProtocol("RegisteredProto")
-	Objc_registerProtocol(proto)
-	protocols := Objc_copyProtocolList()
-
-	for _, p := range protocols {
-		if p == proto {
-			return
-		}
-	}
-
-	t.Errorf("Registered protocol not found: %#v", protocols)
-}
-
-func TestFindNotRegisteredProtocol(t *testing.T) {
-	proto := Objc_allocateProtocol("NotRegisteredProto")
-	protocols := Objc_copyProtocolList()
-
-	for _, p := range protocols {
-		if p == proto {
-			t.Fatalf("GoTestable protocol should not be registered: %#v", p)
-		}
-	}
-}
-
 func TestProtocolAddMethodDescription(t *testing.T) {
 	proto := Objc_allocateProtocol("ProtoWithMethod")
 	sel := Sel_registerName("TestA")
@@ -239,7 +184,7 @@ func TestProtocolCopyPropertyList(t *testing.T) {
 		t.Fatalf("properties should have 1 element: %d", l)
 	}
 
-	if name := Propety_getName(properties[0]); name != propertyName {
+	if name := Property_getName(properties[0]); name != propertyName {
 		t.Errorf("property name should be %s: %s", propertyName, name)
 	}
 }
@@ -268,12 +213,12 @@ func TestProtocolGetProperty(t *testing.T) {
 		t.Fatal("property should not be nil")
 	}
 
-	if name := Propety_getName(property); name != propertyName {
+	if name := Property_getName(property); name != propertyName {
 		t.Errorf("property name should be %s: %s", propertyName, name)
 	}
 }
 
-func TestProtocolGetNonExistentProperty(t *testing.T) {
+func TestProtocolGetNonexistentProperty(t *testing.T) {
 	proto := Objc_allocateProtocol("GetPropertyEmptyProto")
 	Objc_registerProtocol(proto)
 
