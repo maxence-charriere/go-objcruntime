@@ -54,9 +54,8 @@ func Property_copyAttributeList(property Property) (attributes []PropertyAttribu
 
 	if outCount := uint(coutCount); outCount > 0 {
 		attributes = make([]PropertyAttribute, outCount)
-		elem := attrList
 
-		for i := uint(0); i < outCount; i++ {
+		for i, elem := uint(0), attrList; i < outCount; i++ {
 			attributes[i] = makePropertyAttribute(*elem)
 			elem = nextPropertyAttr(elem)
 		}

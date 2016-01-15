@@ -28,9 +28,8 @@ func Objc_copyClassList() (classes []Class) {
 
 	if outCount := uint(coutCount); outCount > 0 {
 		classes = make([]Class, outCount)
-		elem := classList
 
-		for i := uint(0); i < outCount; i++ {
+		for i, elem := uint(0), classList; i < outCount; i++ {
 			classes[i] = Class(*elem)
 			elem = nextClass(elem)
 		}
@@ -68,9 +67,8 @@ func Objc_copyProtocolList() (protocols []Protocol) {
 
 	if outCount := uint(coutCount); outCount > 0 {
 		protocols = make([]Protocol, outCount)
-		elem := protocolList
 
-		for i := uint(0); i < outCount; i++ {
+		for i, elem := uint(0), protocolList; i < outCount; i++ {
 			protocols[i] = *elem
 			elem = nextProtocol(elem)
 		}

@@ -52,18 +52,17 @@ func Class_addIvar(cls Class, name string, size uint, alignment uint8, types str
 	return C.class_addIvar(cls, cname, C.size_t(size), C.uint8_t(alignment), ctypes) != 0
 }
 
-func Class_copyIvarList(cls Class) (ivarList []Ivar) {
+func Class_copyIvarList(cls Class) (ivars []Ivar) {
 	var coutCount C.uint
 
-	list := C.class_copyIvarList(cls, &coutCount)
-	defer C.free(unsafe.Pointer(list))
+	ivarList := C.class_copyIvarList(cls, &coutCount)
+	defer C.free(unsafe.Pointer(ivarList))
 
 	if outCount := uint(coutCount); outCount > 0 {
-		ivarList = make([]Ivar, outCount)
-		elem := list
+		ivars = make([]Ivar, outCount)
 
-		for i := uint(0); i < outCount; i++ {
-			ivarList[i] = Ivar(*elem)
+		for i, elem := uint(0), ivarList; i < outCount; i++ {
+			ivars[i] = Ivar(*elem)
 			elem = nextIvar(elem)
 		}
 	}
@@ -86,9 +85,8 @@ func Class_copyPropertyList(cls Class) (properties []Property) {
 
 	if outCount := uint(coutCount); outCount > 0 {
 		properties = make([]Property, outCount)
-		elem := propertyList
 
-		for i := uint(0); i < outCount; i++ {
+		for i, elem := uint(0), propertyList; i < outCount; i++ {
 			properties[i] = Property(*elem)
 			elem = nextProperty(elem)
 		}
@@ -120,9 +118,8 @@ func Class_copyMethodList(cls Class) (methods []Method) {
 
 	if outCount := uint(coutCount); outCount > 0 {
 		methods = make([]Method, outCount)
-		elem := methodList
 
-		for i := uint(0); i < outCount; i++ {
+		for i, elem := uint(0), methodList; i < outCount; i++ {
 			methods[i] = Method(*elem)
 			elem = nextMethod(elem)
 		}
@@ -167,9 +164,7 @@ func Class_addProperty(cls Class, name string, attributes []PropertyAttribute) b
 		cattributes = (*C.objc_property_attribute_t)(C.calloc(C.size_t(attributeCount), C.size_t(attrSize)))
 
 		defer func(cattributes *C.objc_property_attribute_t, attributeCount int) {
-			elem := cattributes
-
-			for i := 0; i < attributeCount; i++ {
+			for i, elem := 0, cattributes; i < attributeCount; i++ {
 				C.free(unsafe.Pointer(elem.name))
 				C.free(unsafe.Pointer(elem.value))
 
@@ -179,9 +174,7 @@ func Class_addProperty(cls Class, name string, attributes []PropertyAttribute) b
 			C.free(unsafe.Pointer(cattributes))
 		}(cattributes, attributeCount)
 
-		elem := cattributes
-
-		for i := 0; i < attributeCount; i++ {
+		for i, elem := 0, cattributes; i < attributeCount; i++ {
 			attr := attributes[i]
 			elem.name = C.CString(attr.Name)
 			elem.value = C.CString(attr.Value)
@@ -205,9 +198,7 @@ func Class_replaceProperty(cls Class, name string, attributes []PropertyAttribut
 		cattributes = (*C.objc_property_attribute_t)(C.calloc(C.size_t(attributeCount), C.size_t(attrSize)))
 
 		defer func(cattributes *C.objc_property_attribute_t, attributeCount int) {
-			elem := cattributes
-
-			for i := 0; i < attributeCount; i++ {
+			for i, elem := 0, cattributes; i < attributeCount; i++ {
 				C.free(unsafe.Pointer(elem.name))
 				C.free(unsafe.Pointer(elem.value))
 
@@ -217,9 +208,7 @@ func Class_replaceProperty(cls Class, name string, attributes []PropertyAttribut
 			C.free(unsafe.Pointer(cattributes))
 		}(cattributes, attributeCount)
 
-		elem := cattributes
-
-		for i := 0; i < attributeCount; i++ {
+		for i, elem := 0, cattributes; i < attributeCount; i++ {
 			attr := attributes[i]
 			elem.name = C.CString(attr.Name)
 			elem.value = C.CString(attr.Value)
@@ -242,9 +231,8 @@ func Class_copyProtocolList(cls Class) (protocols []Protocol) {
 
 	if outCount := uint(coutCount); outCount > 0 {
 		protocols = make([]Protocol, outCount)
-		elem := protocolList
 
-		for i := uint(0); i < outCount; i++ {
+		for i, elem := uint(0), protocolList; i < outCount; i++ {
 			protocols[i] = Protocol(*elem)
 			elem = nextProtocol(elem)
 		}

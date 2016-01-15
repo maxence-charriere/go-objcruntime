@@ -31,9 +31,8 @@ func Protocol_addProperty(proto Protocol, name string, attributes []PropertyAttr
 		cattributes = (*C.objc_property_attribute_t)(C.calloc(C.size_t(attributeCount), C.size_t(attrSize)))
 
 		defer func(cattributes *C.objc_property_attribute_t, attributeCount int) {
-			elem := cattributes
 
-			for i := 0; i < attributeCount; i++ {
+			for i, elem := 0, cattributes; i < attributeCount; i++ {
 				C.free(unsafe.Pointer(elem.name))
 				C.free(unsafe.Pointer(elem.value))
 
@@ -43,9 +42,7 @@ func Protocol_addProperty(proto Protocol, name string, attributes []PropertyAttr
 			C.free(unsafe.Pointer(cattributes))
 		}(cattributes, attributeCount)
 
-		elem := cattributes
-
-		for i := 0; i < attributeCount; i++ {
+		for i, elem := 0, cattributes; i < attributeCount; i++ {
 			attr := attributes[i]
 			elem.name = C.CString(attr.Name)
 			elem.value = C.CString(attr.Value)
@@ -72,9 +69,8 @@ func Protocol_copyMethodDescriptionList(p Protocol, isRequiredMethod bool, isIns
 
 	if outCount := uint(coutCount); outCount > 0 {
 		descriptions = make([]MethodDescription, outCount)
-		elem := descriptionList
 
-		for i := uint(0); i < outCount; i++ {
+		for i, elem := uint(0), descriptionList; i < outCount; i++ {
 			descriptions[i] = makeMethodDescription(*elem)
 			elem = nextMethodDescription(elem)
 		}
@@ -96,9 +92,8 @@ func Protocol_copyPropertyList(protocol Protocol) (properties []Property) {
 
 	if outCount := uint(coutCount); outCount > 0 {
 		properties = make([]Property, outCount)
-		elem := propertyList
 
-		for i := uint(0); i < outCount; i++ {
+		for i, elem := uint(0), propertyList; i < outCount; i++ {
 			properties[i] = Property(*elem)
 			elem = nextProperty(elem)
 		}
@@ -122,9 +117,8 @@ func Protocol_copyProtocolList(proto Protocol) (protocols []Protocol) {
 
 	if outCount := uint(coutCount); outCount > 0 {
 		protocols = make([]Protocol, outCount)
-		elem := protocolList
 
-		for i := uint(0); i < outCount; i++ {
+		for i, elem := uint(0), protocolList; i < outCount; i++ {
 			protocols[i] = Protocol(*elem)
 			elem = nextProtocol(elem)
 		}
