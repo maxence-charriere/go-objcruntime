@@ -2,6 +2,7 @@ package objc
 
 import (
 	"testing"
+	"unsafe"
 
 	"github.com/achille-roussel/go-ffi"
 )
@@ -203,16 +204,354 @@ func TestClassCopyEmptyPropertyList(t *testing.T) {
 }
 
 func TestClassAddMethod(t *testing.T) {
-	//className := "ClassWithMethod"
-	//class := Objc_allocateClassPair(nil, className, 0)
-	//methodeName := "MethodA"
-	method := func(id Id, sel Sel) {}
-	closure := ffi.Closure(method)
-	methodPtr := closure.Pointer()
-	t.Log(methodPtr)
-	// sel := Sel_registerName(methodeName)
+	className := "ClassWithMethod"
+	class := Objc_allocateClassPair(nil, className, 0)
 
-	// if !Class_addMethod(class, sel, Imp(unsafe.Pointer(methodPtr)), "v") {
-	// 	t.Errorf("failed to add %s to %s", methodeName, className)
-	// }
+	methodeName := "MethodA"
+	closure := ffi.Closure(func(id Id, sel Sel) {})
+	sel := Sel_registerName(methodeName)
+
+	if !Class_addMethod(class, sel, Imp(unsafe.Pointer(closure.Pointer())), "v@:") {
+		t.Errorf("failed to add %s to %s", methodeName, className)
+	}
+}
+
+func TestClassAddExistingMethod(t *testing.T) {
+	className := "ClassWithMethods"
+	class := Objc_allocateClassPair(nil, className, 0)
+
+	methodeName := "MethodA"
+	closureA := ffi.Closure(func(id Id, sel Sel) {})
+	closureB := ffi.Closure(func(id Id, sel Sel, n int) {})
+	sel := Sel_registerName(methodeName)
+
+	Class_addMethod(class, sel, Imp(unsafe.Pointer(closureA.Pointer())), "v@:")
+
+	if Class_addMethod(class, sel, Imp(unsafe.Pointer(closureB.Pointer())), "v@:i") {
+		t.Errorf("add %s to %s should have failde", methodeName, className)
+	}
+}
+
+func TestClassGetInstanceMethod(t *testing.T) {
+	className := "ClassWithInstanceMethod"
+	class := Objc_allocateClassPair(nil, className, 0)
+
+	methodeName := "MethodA"
+	closure := ffi.Closure(func(id Id, sel Sel) {})
+	sel := Sel_registerName(methodeName)
+
+	Class_addMethod(class, sel, Imp(unsafe.Pointer(closure.Pointer())), "v@:")
+
+	if method := Class_getInstanceMethod(class, sel); method == nil {
+		t.Error("method should not be nil")
+	}
+}
+
+func TestClassGetEmptyInstanceMethod(t *testing.T) {
+	className := "ClassWithoutInstanceMethod"
+	class := Objc_allocateClassPair(nil, className, 0)
+
+	methodeName := "MethodA"
+	sel := Sel_registerName(methodeName)
+
+	if method := Class_getInstanceMethod(class, sel); method != nil {
+		t.Errorf("method should be nil: %#v", method)
+	}
+}
+
+func TestClassGetClassMethod(t *testing.T) {
+	className := "ClassWithClassMethod"
+	class := Objc_allocateClassPair(nil, className, 0)
+
+	methodeName := "MethodA"
+	closure := ffi.Closure(func(id Id, sel Sel) {})
+	sel := Sel_registerName(methodeName)
+
+	Class_addMethod(class, sel, Imp(unsafe.Pointer(closure.Pointer())), "v@:")
+
+	if method := Class_getClassMethod(class, sel); method == nil {
+		t.Error("method should not be nil")
+	}
+}
+
+func TestClassGetEmptyClassMethod(t *testing.T) {
+	className := "ClassWithoutClassMethod"
+	class := Objc_allocateClassPair(nil, className, 0)
+
+	methodeName := "MethodA"
+	sel := Sel_registerName(methodeName)
+
+	if method := Class_getClassMethod(class, sel); method != nil {
+		t.Errorf("method should be nil: %#v", method)
+	}
+}
+
+func TestClassCopyMethodList(t *testing.T) {
+	className := "ClassWithMethods"
+	class := Objc_allocateClassPair(nil, className, 0)
+
+	closureA := ffi.Closure(func(id Id, sel Sel) {})
+	closureB := ffi.Closure(func(id Id, sel Sel, n int) {})
+	selA := Sel_registerName("MethodA")
+	selB := Sel_registerName("MethodB")
+
+	Class_addMethod(class, selA, Imp(unsafe.Pointer(closureA.Pointer())), "v@:")
+	Class_addMethod(class, selB, Imp(unsafe.Pointer(closureB.Pointer())), "v@:i")
+
+	methods := Class_copyMethodList(class)
+
+	if l := len(methods); l != 2 {
+		t.Errorf("methods len should be 2: %d", l)
+	}
+}
+
+func TestClassCopyEmptyMethodList(t *testing.T) {
+	className := "ClassWithoutMethods"
+	class := Objc_allocateClassPair(nil, className, 0)
+
+	methods := Class_copyMethodList(class)
+
+	if l := len(methods); l != 0 {
+		t.Errorf("methods len should be 0: %d", l)
+	}
+}
+
+func TestClassReplaceMethod(t *testing.T) {
+	className := "ClassWithMethodToBeReplaced"
+	class := Objc_allocateClassPair(nil, className, 0)
+
+	closureA := ffi.Closure(func(id Id, sel Sel) {})
+	closureB := ffi.Closure(func(id Id, sel Sel) {})
+	impA := Imp(unsafe.Pointer(closureA.Pointer()))
+	impB := Imp(unsafe.Pointer(closureB.Pointer()))
+	sel := Sel_registerName("MethodToBeReplaced")
+
+	Class_addMethod(class, sel, impA, "v@:")
+
+	if retImp := Class_replaceMethod(class, sel, impB, "v@:"); retImp != impA {
+		t.Errorf("retImp is not the old implementation: %p != %p", retImp, impA)
+	}
+}
+
+func TestClassReplaceNonexistentMethod(t *testing.T) {
+	className := "ClassWithoutMethod"
+	class := Objc_allocateClassPair(nil, className, 0)
+
+	methodeName := "MethodA"
+	closure := ffi.Closure(func(id Id, sel Sel) {})
+	sel := Sel_registerName(methodeName)
+	imp := Imp(unsafe.Pointer(closure.Pointer()))
+
+	if retImp := Class_replaceMethod(class, sel, imp, "v@:"); retImp != nil {
+		t.Errorf("retImp should be nil: %#v", retImp)
+	}
+}
+
+func TestClassGetMethodImplementation(t *testing.T) {
+	nsObject := Objc_getClass("NSObject")
+	className := "ClassWithMethod"
+	class := Objc_allocateClassPair(nsObject, className, 0)
+
+	methodeName := "MethodA:"
+	closure := ffi.Closure(func(id Id, sel Sel) {})
+	sel := Sel_registerName(methodeName)
+	imp := Imp(unsafe.Pointer(closure.Pointer()))
+	Class_addMethod(class, sel, imp, "v@:")
+
+	if retImp := Class_getMethodImplementation(class, sel); retImp != imp {
+		t.Errorf("retImp should be %p: %p", imp, retImp)
+	}
+}
+
+func TestClassGetMethodImplementationStret(t *testing.T) {
+	nsObject := Objc_getClass("NSObject")
+	className := "ClassWithMethod"
+	class := Objc_allocateClassPair(nsObject, className, 0)
+
+	methodeName := "MethodA:"
+	closure := ffi.Closure(func(id Id, sel Sel) {})
+	sel := Sel_registerName(methodeName)
+	imp := Imp(unsafe.Pointer(closure.Pointer()))
+	Class_addMethod(class, sel, imp, "v@:")
+
+	if retImp := Class_getMethodImplementation_stret(class, sel); retImp != imp {
+		t.Errorf("retImp should be %p: %p", imp, retImp)
+	}
+}
+
+func TestClassRespondsToSelector(t *testing.T) {
+	className := "ClassRespondingSel"
+	class := Objc_allocateClassPair(nil, className, 0)
+
+	methodeName := "MethodA:"
+	closure := ffi.Closure(func(id Id, sel Sel) {})
+	sel := Sel_registerName(methodeName)
+	imp := Imp(unsafe.Pointer(closure.Pointer()))
+	Class_addMethod(class, sel, imp, "v@:")
+
+	if !Class_respondsToSelector(class, sel) {
+		t.Errorf("class should responds to selector %s", methodeName)
+	}
+}
+
+func TestClassNotRespondsToSelector(t *testing.T) {
+	className := "ClassRespondingSel"
+	class := Objc_allocateClassPair(nil, className, 0)
+
+	methodeName := "MethodA:"
+	sel := Sel_registerName(methodeName)
+
+	if Class_respondsToSelector(class, sel) {
+		t.Errorf("class should not responds to selector %s", methodeName)
+	}
+}
+
+func TestClassAddProtocol(t *testing.T) {
+	className := "ClassWithProtocol"
+	class := Objc_allocateClassPair(nil, className, 0)
+	nsObjectProto := Objc_getProtocol("NSObject")
+
+	if !Class_addProtocol(class, nsObjectProto) {
+		t.Errorf("failed to add NSObject protocol to %s", className)
+	}
+}
+
+func TestClassAddAddedProtocol(t *testing.T) {
+	className := "ClassWithProtocol"
+	class := Objc_allocateClassPair(nil, className, 0)
+	nsObjectProto := Objc_getProtocol("NSObject")
+	Class_addProtocol(class, nsObjectProto)
+
+	if Class_addProtocol(class, nsObjectProto) {
+		t.Errorf("add NSObjectProtocol to %s should have failed", className)
+	}
+}
+
+func TestClassAddProperty(t *testing.T) {
+	className := "ClassWithProperty"
+	class := Objc_allocateClassPair(nil, className, 0)
+
+	propertyName := "A"
+
+	attributes := []PropertyAttribute{
+		PropertyAttribute{Name: "T", Value: "c"},
+		PropertyAttribute{Name: "V", Value: "charDefault"},
+	}
+
+	if !Class_addProperty(class, propertyName, attributes) {
+		t.Errorf("failed to add property %s to class %s", propertyName, className)
+	}
+}
+
+func TestClassAddAddedProperty(t *testing.T) {
+	className := "ClassWithProperty"
+	class := Objc_allocateClassPair(nil, className, 0)
+
+	propertyName := "A"
+
+	attributes := []PropertyAttribute{
+		PropertyAttribute{Name: "T", Value: "c"},
+		PropertyAttribute{Name: "V", Value: "charDefault"},
+	}
+
+	Class_addProperty(class, propertyName, attributes)
+
+	if Class_addProperty(class, propertyName, attributes) {
+		t.Errorf("add property %s to class %s should have failed", propertyName, className)
+	}
+}
+
+func TestClassReplaceProperty(t *testing.T) {
+	className := "ClassWithProperty"
+	class := Objc_allocateClassPair(nil, className, 0)
+
+	propertyName := "A"
+
+	attributes := []PropertyAttribute{
+		PropertyAttribute{Name: "T", Value: "c"},
+		PropertyAttribute{Name: "V", Value: "charDefault"},
+	}
+
+	Class_addProperty(class, propertyName, attributes)
+
+	attributes = []PropertyAttribute{
+		PropertyAttribute{Name: "T", Value: "i"},
+		PropertyAttribute{Name: "V"},
+	}
+
+	Class_replaceProperty(class, propertyName, attributes)
+
+	property := Class_getProperty(class, propertyName)
+	expectedAttributeString := "Ti,V"
+
+	if attributesString := Property_getAttributes(property); attributesString != expectedAttributeString {
+		t.Errorf("attributes string should be %s: %s", expectedAttributeString, attributesString)
+	}
+}
+
+func TestClassConformToProtocol(t *testing.T) {
+	className := "ClassWithProtocol"
+	class := Objc_allocateClassPair(nil, className, 0)
+	nsObjectProto := Objc_getProtocol("NSObject")
+
+	Class_addProtocol(class, nsObjectProto)
+
+	if !Class_conformsToProtocol(class, nsObjectProto) {
+		t.Error("class should conform to NSOject protocol")
+	}
+}
+
+func TestClassNotConformToProtocol(t *testing.T) {
+	className := "ClassWithoutProtocol"
+	class := Objc_allocateClassPair(nil, className, 0)
+	nsObjectProto := Objc_getProtocol("NSObject")
+
+	if Class_conformsToProtocol(class, nsObjectProto) {
+		t.Error("class should not conform to NSOject protocol")
+	}
+}
+
+func TestClassCopyProtocolList(t *testing.T) {
+	className := "ClassWithProtocol"
+	class := Objc_allocateClassPair(nil, className, 0)
+	nsObjectProto := Objc_getProtocol("NSObject")
+
+	Class_addProtocol(class, nsObjectProto)
+
+	protocols := Class_copyProtocolList(class)
+
+	if l := len(protocols); l != 1 {
+		t.Errorf("protocols len should be 1: %d", l)
+	}
+}
+
+func TestClassCopyEmptyProtocolList(t *testing.T) {
+	className := "ClassWithoutProtocol"
+	class := Objc_allocateClassPair(nil, className, 0)
+
+	protocols := Class_copyProtocolList(class)
+
+	if l := len(protocols); l != 0 {
+		t.Errorf("protocols len should be 0: %d", l)
+	}
+}
+
+func TestClassGetVersion(t *testing.T) {
+	className := "Class"
+	class := Objc_allocateClassPair(nil, className, 0)
+
+	if version := Class_getVersion(class); version != 0 {
+		t.Errorf("class version should be 0: %d", version)
+	}
+}
+
+func TestClassSetVersion(t *testing.T) {
+	className := "Class"
+	class := Objc_allocateClassPair(nil, className, 0)
+
+	Class_setVersion(class, 42)
+
+	if version := Class_getVersion(class); version != 42 {
+		t.Errorf("class version should be 42: %d", version)
+	}
 }
