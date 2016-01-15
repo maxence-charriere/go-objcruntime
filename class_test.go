@@ -497,7 +497,7 @@ func TestClassConformToProtocol(t *testing.T) {
 	Class_addProtocol(class, nsObjectProto)
 
 	if !Class_conformsToProtocol(class, nsObjectProto) {
-		t.Error("class should conform to NSOject protocol")
+		t.Error("class should conform to NSObject protocol")
 	}
 }
 
@@ -507,7 +507,7 @@ func TestClassNotConformToProtocol(t *testing.T) {
 	nsObjectProto := Objc_getProtocol("NSObject")
 
 	if Class_conformsToProtocol(class, nsObjectProto) {
-		t.Error("class should not conform to NSOject protocol")
+		t.Error("class should not conform to NSObject protocol")
 	}
 }
 
