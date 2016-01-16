@@ -35,6 +35,42 @@ func TestRegisterClassPair(t *testing.T) {
 	Objc_registerClassPair(class)
 }
 
+func TestConstructInstance(t *testing.T) {
+	superclass := Objc_getClass("NSObject")
+	class := Objc_allocateClassPair(superclass, "ClassToConstruct", 0)
+	Objc_registerClassPair(class)
+
+	bytes := calloc(1, uintptr(Class_getInstanceSize(class)))
+
+	if instance := Objc_constructInstance(class, bytes); instance == nil {
+		t.Error("instance should not be nil")
+	}
+}
+
+func TestConstructNilInstance(t *testing.T) {
+	superclass := Objc_getClass("NSObject")
+	class := Objc_allocateClassPair(superclass, "ClassToConstructNil", 0)
+	Objc_registerClassPair(class)
+
+	if instance := Objc_constructInstance(class, nil); instance != nil {
+		t.Errorf("instance should be nil: %#v", instance)
+	}
+}
+
+func TestDestructInstance(t *testing.T) {
+	superclass := Objc_getClass("NSObject")
+	class := Objc_allocateClassPair(superclass, "ClassToDestruct", 0)
+	Objc_registerClassPair(class)
+
+	instance := Class_createInstance(class, 0)
+	Objc_destructInstance(instance)
+
+}
+
+func TestDestructNil(t *testing.T) {
+	Objc_destructInstance(nil)
+}
+
 func TestCopyClassList(t *testing.T) {
 	classes := Objc_copyClassList()
 

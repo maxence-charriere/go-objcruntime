@@ -20,6 +20,14 @@ func Objc_registerClassPair(cls Class) {
 	C.objc_registerClassPair(cls)
 }
 
+func Objc_constructInstance(cls Class, bytes unsafe.Pointer) Id {
+	return Id(C.objc_constructInstance(cls, bytes))
+}
+
+func Objc_destructInstance(obj Id) {
+	C.objc_destructInstance(obj)
+}
+
 func Objc_copyClassList() (classes []Class) {
 	var coutCount C.uint
 

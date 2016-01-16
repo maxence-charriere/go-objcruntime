@@ -28,7 +28,7 @@ func Protocol_addProperty(proto Protocol, name string, attributes []PropertyAttr
 	attributeCount := len(attributes)
 
 	if len(attributes) != 0 {
-		cattributes = (*C.objc_property_attribute_t)(C.calloc(C.size_t(attributeCount), C.size_t(attrSize)))
+		cattributes = (*C.objc_property_attribute_t)(calloc(uint(attributeCount), attrSize))
 
 		defer func(cattributes *C.objc_property_attribute_t, attributeCount int) {
 
