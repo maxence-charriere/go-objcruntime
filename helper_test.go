@@ -1,9 +1,16 @@
 package objc
 
-import "testing"
+import (
+	"testing"
+	"unsafe"
+)
 
-func TestCalloc(t *testing.T) {
-	if ptr := calloc(2, 4); ptr == nil {
+func TestCallocFree(t *testing.T) {
+	var ptr unsafe.Pointer
+
+	if ptr = calloc(2, 4); ptr == nil {
 		t.Error("ptr should not be nil")
 	}
+
+	free(ptr)
 }

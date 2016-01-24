@@ -7,8 +7,6 @@ import "unsafe"
 
 type Class C.Class
 
-type Id C.id
-
 type Imp C.IMP
 
 func Class_getName(cls Class) string {

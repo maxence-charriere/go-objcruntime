@@ -38,10 +38,10 @@ func Property_getAttributes(property Property) string {
 
 func Property_copyAttributeValue(property Property, attributeName string) string {
 	cattrName := C.CString(attributeName)
-	defer C.free(unsafe.Pointer(cattrName))
+	defer free(unsafe.Pointer(cattrName))
 
 	cattrVal := C.property_copyAttributeValue(property, cattrName)
-	defer C.free(unsafe.Pointer(cattrVal))
+	defer free(unsafe.Pointer(cattrVal))
 
 	return C.GoString(cattrVal)
 }
@@ -50,7 +50,7 @@ func Property_copyAttributeList(property Property) (attributes []PropertyAttribu
 	var coutCount C.uint
 
 	attrList := C.property_copyAttributeList(property, &coutCount)
-	defer C.free(unsafe.Pointer(attrList))
+	defer free(unsafe.Pointer(attrList))
 
 	if outCount := uint(coutCount); outCount > 0 {
 		attributes = make([]PropertyAttribute, outCount)

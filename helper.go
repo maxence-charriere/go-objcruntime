@@ -14,5 +14,9 @@ func cBool(value bool) C.BOOL {
 }
 
 func calloc(count uint, size uintptr) unsafe.Pointer {
-	return unsafe.Pointer(C.calloc(C.size_t(count), C.size_t(size)))
+	return C.calloc(C.size_t(count), C.size_t(size))
+}
+
+func free(ptr unsafe.Pointer) {
+	C.free(ptr)
 }

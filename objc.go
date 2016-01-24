@@ -7,7 +7,7 @@ import "unsafe"
 
 func Objc_allocateClassPair(superclass Class, name string, extraBytes uint) Class {
 	cname := C.CString(name)
-	defer C.free(unsafe.Pointer(cname))
+	defer free(unsafe.Pointer(cname))
 
 	return Class(C.objc_allocateClassPair(superclass, cname, C.size_t(extraBytes)))
 }
@@ -32,7 +32,7 @@ func Objc_copyClassList() (classes []Class) {
 	var coutCount C.uint
 
 	classList := C.objc_copyClassList(&coutCount)
-	defer C.free(unsafe.Pointer(classList))
+	defer free(unsafe.Pointer(classList))
 
 	if outCount := uint(coutCount); outCount > 0 {
 		classes = make([]Class, outCount)
@@ -48,21 +48,21 @@ func Objc_copyClassList() (classes []Class) {
 
 func Objc_getClass(name string) Class {
 	cname := C.CString(name)
-	defer C.free(unsafe.Pointer(cname))
+	defer free(unsafe.Pointer(cname))
 
 	return Class(C.objc_getClass(cname))
 }
 
 func Objc_getMetaClass(name string) Class {
 	cname := C.CString(name)
-	defer C.free(unsafe.Pointer(cname))
+	defer free(unsafe.Pointer(cname))
 
 	return Class(C.objc_getMetaClass(cname))
 }
 
 func Objc_getProtocol(name string) Protocol {
 	cname := C.CString(name)
-	defer C.free(unsafe.Pointer(cname))
+	defer free(unsafe.Pointer(cname))
 
 	return Protocol(C.objc_getProtocol(cname))
 }
@@ -71,7 +71,7 @@ func Objc_copyProtocolList() (protocols []Protocol) {
 	var coutCount C.uint
 
 	protocolList := C.objc_copyProtocolList(&coutCount)
-	defer C.free(unsafe.Pointer(protocolList))
+	defer free(unsafe.Pointer(protocolList))
 
 	if outCount := uint(coutCount); outCount > 0 {
 		protocols = make([]Protocol, outCount)
@@ -87,7 +87,7 @@ func Objc_copyProtocolList() (protocols []Protocol) {
 
 func Objc_allocateProtocol(name string) Protocol {
 	cname := C.CString(name)
-	defer C.free(unsafe.Pointer(cname))
+	defer free(unsafe.Pointer(cname))
 
 	return Protocol(C.objc_allocateProtocol(cname))
 }
