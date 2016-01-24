@@ -15,10 +15,10 @@ Functions
 ![OK](https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Symbol_OK.svg/16px-Symbol_OK.svg.png)
 
 - [Instantiating Classes](https://developer.apple.com/library/mac/documentation/Cocoa/Reference/ObjCRuntimeRef/#//apple_ref/doc/uid/TP40001418-CH1g-119787)
-![NO](https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/No_icon_red.svg/16px-No_icon_red.svg.png)
+![OK](https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Symbol_OK.svg/16px-Symbol_OK.svg.png)
 
 - [Working with Instances](https://developer.apple.com/library/mac/documentation/Cocoa/Reference/ObjCRuntimeRef/#//apple_ref/doc/uid/TP40001418-CH1g-125829)
-![NO](https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/No_icon_red.svg/16px-No_icon_red.svg.png)
+![OK](https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Symbol_OK.svg/16px-Symbol_OK.svg.png)
 
 - [Obtaining Class Definitions](https://developer.apple.com/library/mac/documentation/Cocoa/Reference/ObjCRuntimeRef/#//apple_ref/doc/uid/TP40001418-CH1g-184642)
 ![OK](https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Symbol_OK.svg/16px-Symbol_OK.svg.png)
