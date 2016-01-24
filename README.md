@@ -47,5 +47,5 @@ Functions
 - **Working with Properties**
 ![OK](https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Symbol_OK.svg/16px-Symbol_OK.svg.png)
 
-- **WUsing Objective-C Language Features**
+- **Using Objective-C Language Features**
 ![NO](https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/No_icon_red.svg/16px-No_icon_red.svg.png)
