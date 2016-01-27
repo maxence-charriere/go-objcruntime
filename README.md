@@ -27,7 +27,7 @@ Functions
 ![OK](https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Symbol_OK.svg/16px-Symbol_OK.svg.png)
 
 - [Associative References](https://developer.apple.com/library/mac/documentation/Cocoa/Reference/ObjCRuntimeRef/#//apple_ref/doc/uid/TP40001418-CH1g-SW51)
-![NO](https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/No_icon_red.svg/16px-No_icon_red.svg.png)
+![OK](https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Symbol_OK.svg/16px-Symbol_OK.svg.png)
 
 - [Sending Messages](https://developer.apple.com/library/mac/documentation/Cocoa/Reference/ObjCRuntimeRef/#//apple_ref/doc/uid/TP40001418-CH1g-88778)
 ![NO](https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/No_icon_red.svg/16px-No_icon_red.svg.png)
