@@ -70,6 +70,45 @@ func Objc_getMetaClass(name string) Class {
 	return Class(C.objc_getMetaClass(cname))
 }
 
+func Objc_copyImageNames() (imageNames []string, outCount uint) {
+	var coutCount C.uint
+
+	imageNameList := C.objc_copyImageNames(&coutCount)
+	defer free(unsafe.Pointer(imageNameList))
+
+	if outCount = uint(coutCount); outCount > 0 {
+		imageNames = make([]string, outCount)
+
+		for i, elem := uint(0), imageNameList; i < outCount; i++ {
+			imageNames[i] = C.GoString(*elem)
+			elem = nextString(elem)
+		}
+	}
+
+	return
+}
+
+func Objc_copyClassNamesForImage(image string) (classNames []string, outCount uint) {
+	var coutCount C.uint
+
+	cimage := C.CString(image)
+	defer free(unsafe.Pointer(cimage))
+
+	classNameList := C.objc_copyClassNamesForImage(cimage, &coutCount)
+	defer free(unsafe.Pointer(classNameList))
+
+	if outCount = uint(coutCount); outCount > 0 {
+		classNames = make([]string, outCount)
+
+		for i, elem := uint(0), classNameList; i < outCount; i++ {
+			classNames[i] = C.GoString(*elem)
+			elem = nextString(elem)
+		}
+	}
+
+	return
+}
+
 func Objc_getProtocol(name string) Protocol {
 	cname := C.CString(name)
 	defer free(unsafe.Pointer(cname))
@@ -116,4 +155,9 @@ func Objc_getAssociatedObject(object Id, key unsafe.Pointer) Id {
 
 func Objc_removeAssociatedObjects(object Id) {
 	C.objc_removeAssociatedObjects(object)
+}
+
+func nextString(list **C.char) **C.char {
+	ptr := uintptr(unsafe.Pointer(list)) + unsafe.Sizeof(*list)
+	return (**C.char)(unsafe.Pointer(ptr))
 }

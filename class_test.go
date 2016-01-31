@@ -565,3 +565,12 @@ func TestClassCreateInstance(t *testing.T) {
 		t.Error("instance should not be nil")
 	}
 }
+
+func TestClassGetImageName(t *testing.T) {
+	nsObject := Objc_getClass("NSObject")
+	libName := "/usr/lib/libobjc.A.dylib"
+
+	if image := Class_getImageName(nsObject); image != libName {
+		t.Errorf("image should be %s: %s", libName, image)
+	}
+}
