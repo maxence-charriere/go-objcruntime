@@ -7,8 +7,6 @@ import "unsafe"
 
 type Class C.Class
 
-type Id C.id
-
 type Imp C.IMP
 
 func Class_getName(cls Class) string {
@@ -161,7 +159,7 @@ func Class_addProperty(cls Class, name string, attributes []PropertyAttribute) b
 	attributeCount := len(attributes)
 
 	if len(attributes) != 0 {
-		cattributes = (*C.objc_property_attribute_t)(C.calloc(C.size_t(attributeCount), C.size_t(attrSize)))
+		cattributes = (*C.objc_property_attribute_t)(calloc(uint(attributeCount), attrSize))
 
 		defer func(cattributes *C.objc_property_attribute_t, attributeCount int) {
 			for i, elem := 0, cattributes; i < attributeCount; i++ {
@@ -195,7 +193,7 @@ func Class_replaceProperty(cls Class, name string, attributes []PropertyAttribut
 	attributeCount := len(attributes)
 
 	if len(attributes) != 0 {
-		cattributes = (*C.objc_property_attribute_t)(C.calloc(C.size_t(attributeCount), C.size_t(attrSize)))
+		cattributes = (*C.objc_property_attribute_t)(calloc(uint(attributeCount), attrSize))
 
 		defer func(cattributes *C.objc_property_attribute_t, attributeCount int) {
 			for i, elem := 0, cattributes; i < attributeCount; i++ {
@@ -247,6 +245,10 @@ func Class_getVersion(theClass Class) int {
 
 func Class_setVersion(theClass Class, version int) {
 	C.class_setVersion(theClass, C.int(version))
+}
+
+func Class_createInstance(cls Class, extraBytes uint) Id {
+	return Id(C.class_createInstance(cls, C.size_t(extraBytes)))
 }
 
 func nextClass(list *C.Class) *C.Class {

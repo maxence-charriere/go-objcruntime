@@ -1,6 +1,5 @@
 package objc
 
-// #include <stdlib.h>
 // #include <objc/runtime.h>
 import "C"
 import "unsafe"

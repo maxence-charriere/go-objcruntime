@@ -555,3 +555,13 @@ func TestClassSetVersion(t *testing.T) {
 		t.Errorf("class version should be 42: %d", version)
 	}
 }
+
+func TestClassCreateInstance(t *testing.T) {
+	nsObject := Objc_getClass("NSObject")
+	class := Objc_allocateClassPair(nsObject, "ClassToBeInstanciated", 0)
+	Objc_registerClassPair(class)
+
+	if instance := Class_createInstance(class, 0); instance == nil {
+		t.Error("instance should not be nil")
+	}
+}

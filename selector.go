@@ -13,14 +13,14 @@ func Sel_getName(aSelector Sel) string {
 
 func Sel_registerName(str string) Sel {
 	cstr := C.CString(str)
-	defer C.free(unsafe.Pointer(cstr))
+	defer free(unsafe.Pointer(cstr))
 
 	return Sel(C.sel_registerName(cstr))
 }
 
 func Sel_getUid(str string) Sel {
 	cstr := C.CString(str)
-	defer C.free(unsafe.Pointer(cstr))
+	defer free(unsafe.Pointer(cstr))
 
 	return Sel(C.sel_getUid(cstr))
 }
