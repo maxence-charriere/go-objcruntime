@@ -1,6 +1,9 @@
 package objc
 
-import "testing"
+import (
+	"testing"
+	"unsafe"
+)
 
 func TestAllocateClassPair(t *testing.T) {
 	if class := Objc_allocateClassPair(nil, "ClassToAllocate", 0); class == nil {
@@ -155,5 +158,93 @@ func TestFindNotRegisteredProtocol(t *testing.T) {
 		if p == proto {
 			t.Fatalf("GoTestable protocol should not be registered: %#v", p)
 		}
+	}
+}
+
+func TestSetAssociatedObject(t *testing.T) {
+	nsObject := Objc_getClass("NSObject")
+	instance := Class_createInstance(nsObject, 0)
+	selector := Sel_registerName("associatedObject")
+
+	class := Objc_allocateClassPair(nsObject, "ClassWithAssociatedObject", 0)
+	ivarName := "number"
+	Class_addIvar(class, ivarName, 4, 0, "i")
+	Objc_registerClassPair(class)
+	value := Class_createInstance(class, 0)
+	number := 42
+	Object_setInstanceVariable(value, ivarName, unsafe.Pointer(&number))
+
+	Objc_setAssociatedObject(instance, unsafe.Pointer(selector), value, OBJC_ASSOCIATION_ASSIGN)
+}
+
+func TestUnsetAssociatedObject(t *testing.T) {
+	nsObject := Objc_getClass("NSObject")
+	instance := Class_createInstance(nsObject, 0)
+	selector := Sel_registerName("associatedObject")
+
+	class := Objc_allocateClassPair(nsObject, "ClassWithoutAssociatedObject", 0)
+	ivarName := "number"
+	Class_addIvar(class, ivarName, 4, 0, "i")
+	Objc_registerClassPair(class)
+	value := Class_createInstance(class, 0)
+	number := 42
+	Object_setInstanceVariable(value, ivarName, unsafe.Pointer(&number))
+
+	Objc_setAssociatedObject(instance, unsafe.Pointer(selector), value, OBJC_ASSOCIATION_ASSIGN)
+	Objc_setAssociatedObject(instance, unsafe.Pointer(selector), nil, OBJC_ASSOCIATION_ASSIGN)
+
+	if associatedObject := Objc_getAssociatedObject(instance, unsafe.Pointer(selector)); associatedObject != nil {
+		t.Errorf("associatedObject should be nil: %#v", associatedObject)
+	}
+}
+
+func TestGetAssociatedObject(t *testing.T) {
+	nsObject := Objc_getClass("NSObject")
+	instance := Class_createInstance(nsObject, 0)
+	selector := Sel_registerName("associatedObject")
+
+	class := Objc_allocateClassPair(nsObject, "ClassWithAssociatedObjectToBeRetrieved", 0)
+	ivarName := "number"
+	Class_addIvar(class, ivarName, 4, 0, "i")
+	Objc_registerClassPair(class)
+	value := Class_createInstance(class, 0)
+	number := 42
+	Object_setInstanceVariable(value, ivarName, unsafe.Pointer(&number))
+
+	Objc_setAssociatedObject(instance, unsafe.Pointer(selector), value, OBJC_ASSOCIATION_ASSIGN)
+
+	if associatedObject := Objc_getAssociatedObject(instance, unsafe.Pointer(selector)); associatedObject != value {
+		t.Errorf("associatedObject should be %p: %p", value, associatedObject)
+	}
+}
+
+func TestGetNonexistentAssociatedObject(t *testing.T) {
+	nsObject := Objc_getClass("NSObject")
+	instance := Class_createInstance(nsObject, 0)
+	selector := Sel_registerName("associatedObject")
+
+	if associatedObject := Objc_getAssociatedObject(instance, unsafe.Pointer(selector)); associatedObject != nil {
+		t.Errorf("associatedObject should be nil: %#v", associatedObject)
+	}
+}
+
+func TestRemoveAssociationObjects(t *testing.T) {
+	nsObject := Objc_getClass("NSObject")
+	instance := Class_createInstance(nsObject, 0)
+	selector := Sel_registerName("associatedObject")
+
+	class := Objc_allocateClassPair(nsObject, "ClassWithAssociatedObjectToBeRemoved", 0)
+	ivarName := "number"
+	Class_addIvar(class, ivarName, 4, 0, "i")
+	Objc_registerClassPair(class)
+	value := Class_createInstance(class, 0)
+	number := 42
+	Object_setInstanceVariable(value, ivarName, unsafe.Pointer(&number))
+
+	Objc_setAssociatedObject(instance, unsafe.Pointer(selector), value, OBJC_ASSOCIATION_ASSIGN)
+	Objc_removeAssociatedObjects(instance)
+
+	if associatedObject := Objc_getAssociatedObject(instance, unsafe.Pointer(selector)); associatedObject != nil {
+		t.Errorf("associatedObject should be nil: %#v", associatedObject)
 	}
 }

@@ -5,6 +5,16 @@ package objc
 import "C"
 import "unsafe"
 
+type AssociationPolicy uintptr
+
+const (
+	OBJC_ASSOCIATION_ASSIGN           AssociationPolicy = 0
+	OBJC_ASSOCIATION_RETAIN_NONATOMIC AssociationPolicy = 1
+	OBJC_ASSOCIATION_COPY_NONATOMIC   AssociationPolicy = 3
+	OBJC_ASSOCIATION_RETAIN           AssociationPolicy = 01401
+	OBJC_ASSOCIATION_COPY             AssociationPolicy = 01403
+)
+
 func Objc_allocateClassPair(superclass Class, name string, extraBytes uint) Class {
 	cname := C.CString(name)
 	defer free(unsafe.Pointer(cname))
@@ -94,4 +104,16 @@ func Objc_allocateProtocol(name string) Protocol {
 
 func Objc_registerProtocol(protocol Protocol) {
 	C.objc_registerProtocol(protocol)
+}
+
+func Objc_setAssociatedObject(object Id, key unsafe.Pointer, value Id, policy AssociationPolicy) {
+	C.objc_setAssociatedObject(object, key, value, C.objc_AssociationPolicy(policy))
+}
+
+func Objc_getAssociatedObject(object Id, key unsafe.Pointer) Id {
+	return Id(C.objc_getAssociatedObject(object, key))
+}
+
+func Objc_removeAssociatedObjects(object Id) {
+	C.objc_removeAssociatedObjects(object)
 }
