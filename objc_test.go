@@ -106,6 +106,30 @@ func TesGettNonexistentMetaClass(t *testing.T) {
 	}
 }
 
+func TestCopyImageName(t *testing.T) {
+	images, count := Objc_copyImageNames()
+
+	if len(images) == 0 {
+		t.Error("images should not be empty")
+	}
+
+	if imagesLen := uint(len(images)); imagesLen != count {
+		t.Errorf("count should be %d: %d", imagesLen, count)
+	}
+}
+
+func TestCopyClassNamesForImage(t *testing.T) {
+	classes, count := Objc_copyClassNamesForImage("/usr/lib/libobjc.A.dylib")
+
+	if len(classes) == 0 {
+		t.Error("classes should not be empty")
+	}
+
+	if classesLen := uint(len(classes)); classesLen != count {
+		t.Errorf("count should be %d: %d", classesLen, count)
+	}
+}
+
 func TestGetProtocol(t *testing.T) {
 	if p := Objc_getProtocol("NSObject"); p == nil {
 		t.Error("protocol should not be nil")

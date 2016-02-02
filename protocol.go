@@ -11,7 +11,7 @@ func Protocol_addMethodDescription(proto Protocol, name Sel, types string, isReq
 	ctypes := C.CString(types)
 	defer free(unsafe.Pointer(ctypes))
 
-	C.protocol_addMethodDescription(proto, name, ctypes, cBool(isRequiredMethod), cBool(isInstanceMethod))
+	C.protocol_addMethodDescription(proto, name, ctypes, CBool(isRequiredMethod), CBool(isInstanceMethod))
 }
 
 func Protocol_addProtocol(proto Protocol, addition Protocol) {
@@ -50,7 +50,7 @@ func Protocol_addProperty(proto Protocol, name string, attributes []PropertyAttr
 		}
 	}
 
-	C.protocol_addProperty(proto, cname, cattributes, C.uint(attributeCount), cBool(isRequiredProperty), cBool(isInstanceProperty))
+	C.protocol_addProperty(proto, cname, cattributes, C.uint(attributeCount), CBool(isRequiredProperty), CBool(isInstanceProperty))
 }
 
 func Protocol_getName(p Protocol) string {
@@ -64,7 +64,7 @@ func Protocol_isEqual(proto Protocol, other Protocol) bool {
 func Protocol_copyMethodDescriptionList(p Protocol, isRequiredMethod bool, isInstanceMethod bool) (descriptions []MethodDescription) {
 	var coutCount C.uint
 
-	descriptionList := C.protocol_copyMethodDescriptionList(p, cBool(isRequiredMethod), cBool(isInstanceMethod), &coutCount)
+	descriptionList := C.protocol_copyMethodDescriptionList(p, CBool(isRequiredMethod), CBool(isInstanceMethod), &coutCount)
 	defer free(unsafe.Pointer(descriptionList))
 
 	if outCount := uint(coutCount); outCount > 0 {
@@ -80,7 +80,7 @@ func Protocol_copyMethodDescriptionList(p Protocol, isRequiredMethod bool, isIns
 }
 
 func Protocol_getMethodDescription(p Protocol, aSel Sel, isRequiredMethod bool, isInstanceMethod bool) MethodDescription {
-	cmethodDescription := C.protocol_getMethodDescription(p, aSel, cBool(isRequiredMethod), cBool(isInstanceMethod))
+	cmethodDescription := C.protocol_getMethodDescription(p, aSel, CBool(isRequiredMethod), CBool(isInstanceMethod))
 	return makeMethodDescription(cmethodDescription)
 }
 
@@ -106,7 +106,7 @@ func Protocol_getProperty(proto Protocol, name string, isRequiredProperty bool, 
 	cname := C.CString(name)
 	defer free(unsafe.Pointer(cname))
 
-	return Property(C.protocol_getProperty(proto, cname, cBool(isRequiredProperty), cBool(isInstanceProperty)))
+	return Property(C.protocol_getProperty(proto, cname, CBool(isRequiredProperty), CBool(isInstanceProperty)))
 }
 
 func Protocol_copyProtocolList(proto Protocol) (protocols []Protocol) {

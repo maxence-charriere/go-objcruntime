@@ -36,7 +36,7 @@ Functions
 ![OK](https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Symbol_OK.svg/16px-Symbol_OK.svg.png)
 
 - [Working with Libraries](https://developer.apple.com/library/mac/documentation/Cocoa/Reference/ObjCRuntimeRef/#//apple_ref/doc/uid/TP40001418-CH1g-SW95)
-![NO](https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/No_icon_red.svg/16px-No_icon_red.svg.png)
+![OK](https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Symbol_OK.svg/16px-Symbol_OK.svg.png)
 
 - [Working with Selectors](https://developer.apple.com/library/mac/documentation/Cocoa/Reference/ObjCRuntimeRef/#//apple_ref/doc/uid/TP40001418-CH1g-88860)
 ![OK](https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Symbol_OK.svg/16px-Symbol_OK.svg.png)

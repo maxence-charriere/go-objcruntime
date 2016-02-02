@@ -5,7 +5,7 @@ package objc
 import "C"
 import "unsafe"
 
-func cBool(value bool) C.BOOL {
+func CBool(value bool) C.BOOL {
 	if value {
 		return 1
 	}

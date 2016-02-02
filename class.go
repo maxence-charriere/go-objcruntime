@@ -251,6 +251,10 @@ func Class_createInstance(cls Class, extraBytes uint) Id {
 	return Id(C.class_createInstance(cls, C.size_t(extraBytes)))
 }
 
+func Class_getImageName(cls Class) string {
+	return C.GoString(C.class_getImageName(cls))
+}
+
 func nextClass(list *C.Class) *C.Class {
 	ptr := uintptr(unsafe.Pointer(list)) + unsafe.Sizeof(*list)
 	return (*C.Class)(unsafe.Pointer(ptr))
